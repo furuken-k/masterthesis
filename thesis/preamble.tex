@@ -1,0 +1,110 @@
+%=============================================================
+%  preamble.tex  ―  パッケージ・設定・マクロ定義
+%=============================================================
+
+% ── 日本語フォント（LuaLaTeX） ───────────────────────────────
+% luatexja-preset が luatexja-fontspec を内包するので単独でロード
+% macOS (Hiragino フォント): hiragino-pron
+% Linux/CI (Noto フォント) : noto
+\usepackage[hiragino-pron]{luatexja-preset}
+
+% ── 数式 ──────────────────────────────────────────────────────
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+% ── 図・表 ────────────────────────────────────────────────────
+\usepackage{graphicx}
+\graphicspath{{figures/}}           % 図の検索パス
+\usepackage{booktabs}               % \toprule, \midrule, \bottomrule
+\usepackage{threeparttable}         % 表の注釈
+\usepackage{longtable}              % 複数ページにまたがる表
+\usepackage{multirow}               % セル結合
+\usepackage{array}                  % 列幅指定 (>{...}p{...} など)
+\usepackage{tabularx}               % 幅指定表
+\usepackage{float}                  % [H] 指定
+\usepackage{caption}
+\captionsetup{
+  font       = small,
+  labelfont  = bf,
+  format     = hang,
+  width      = 0.9\linewidth,
+}
+\captionsetup[table]{position=above}
+\captionsetup[figure]{position=below}
+
+% ── 数値・単位 ────────────────────────────────────────────────
+\usepackage{siunitx}
+\sisetup{
+  group-separator   = {,},
+  group-minimum-digits = 4,
+}
+
+% ── ハイパーリンク ───────────────────────────────────────────
+\usepackage[
+  colorlinks = true,
+  linkcolor  = black,
+  citecolor  = black,
+  urlcolor   = black,
+  bookmarks  = true,
+]{hyperref}
+\usepackage{url}
+
+% ── 文献 (BibLaTeX) ──────────────────────────────────────────
+\usepackage[
+  style       = apa,      % APA形式（経済学・経営学の標準）
+  backend     = biber,
+  natbib      = true,     % \citep, \citet が使える
+  sortcites   = true,
+  maxcitenames = 2,
+  maxbibnames  = 99,
+]{biblatex}
+
+% ── カラー・強調 ─────────────────────────────────────────────
+\usepackage{xcolor}
+\definecolor{myblue}{RGB}{46, 64, 87}
+\definecolor{myred}{RGB}{180, 50, 50}
+
+% ── コード表示 ────────────────────────────────────────────────
+\usepackage{listings}
+\lstset{
+  basicstyle   = \ttfamily\small,
+  keywordstyle = \color{myblue}\bfseries,
+  commentstyle = \color{gray}\itshape,
+  stringstyle  = \color{myred},
+  numbers      = left,
+  numberstyle  = \tiny\color{gray},
+  frame        = single,
+  breaklines   = true,
+  captionpos   = b,
+}
+
+% ── その他 ────────────────────────────────────────────────────
+\usepackage{setspace}
+\setstretch{1.3}           % 行間を 1.3 倍
+\usepackage{enumitem}
+\usepackage{pdfpages}      % 外部PDFの取り込み（付録用）
+
+% ── ヘッダ・フッタ ───────────────────────────────────────────
+% \usepackage{jlreq-deluxe}  % jlreq用の見出しスタイル拡張（インストール済みなら有効化）
+% ヘッダ・フッタのカスタマイズは jlreq の \ModifyHeading 等で行う
+
+%=============================================================
+% カスタムマクロ
+%=============================================================
+
+% 統計用記号
+\newcommand{\AUC}{\mathrm{AUC}}
+\newcommand{\SHAP}{\mathrm{SHAP}}
+\newcommand{\XGB}{\textrm{XGBoost}}
+\newcommand{\Cluster}[1]{\textbf{C#1}}   % \Cluster{0} → C0
+
+% 注釈記号（表内）
+\newcommand{\sig}[1]{$^{#1}$}  % \sig{***}
+
+% TODO マーカー（執筆中のみ表示）
+\newcommand{\TODO}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+
+% 引用ショートカット
+% \tcite{key} → 著者 (年) のインライン引用
+\newcommand{\tcite}[1]{\citeauthor{#1} (\citeyear{#1})}

@@ -1,0 +1,99 @@
+%=============================================================
+%  main.tex  ―  修士論文メインファイル
+%  Engine : LuaLaTeX
+%  Class  : jlreq (日本語組版規則準拠)
+%  Bib    : BibLaTeX + biber
+%
+%  コンパイル手順:
+%    lualatex main && biber main && lualatex main && lualatex main
+%=============================================================
+
+\documentclass[
+  book,                   % book モード（\chapter, \mainmatter が使える）
+  paper        = a4,
+  fontsize     = 12pt,
+  head_space   = 30mm,
+  gutter       = 30mm,    % 綴じ側余白
+  line_length  = 40zw,    % 1行の文字数
+  number_of_lines = 36,   % 1ページの行数
+  titlepage,
+  twoside,
+]{jlreq}
+
+% ── プリアンブル（パッケージ・設定）──────────────────────────
+\input{preamble}
+
+% ── 文献データベース ──────────────────────────────────────────
+\addbibresource{references.bib}
+
+%=============================================================
+\begin{document}
+%=============================================================
+
+% ── 表紙 ────────────────────────────────────────────────────
+\begin{titlepage}
+  \centering
+  \vspace*{40mm}
+  {\Large 九州大学大学院 経済学府\par}
+  \vspace{8mm}
+  {\large 経済システム専攻\par}
+  \vspace{20mm}
+  {\LARGE\bfseries 日本上場企業の財務クラスター遷移分析\par}
+  \vspace{6mm}
+  {\large ――機械学習を用いた遷移要因の解明――\par}
+  \vspace{30mm}
+  {\large 修士論文\par}
+  \vspace{20mm}
+  {\large 提出年月：2026年〇月\par}
+  \vspace{10mm}
+  {\large 氏名：〇〇〇〇\par}
+  \vspace{6mm}
+  {\large 指導教員：〇〇〇〇 教授\par}
+  \vfill
+\end{titlepage}
+
+% ── 概要（和文アブストラクト）───────────────────────────────
+\cleardoublepage
+\chapter*{概要}
+\addcontentsline{toc}{chapter}{概要}
+% TODO: 概要を記述する（400〜600字程度）
+\bigskip
+本稿では，日本上場企業の財務データを用いてクラスタリングと遷移分析を行い，
+企業の財務構造がどのように変化するかを機械学習によって解明する。
+%
+% （ここに概要を執筆）
+
+% ── 目次 ────────────────────────────────────────────────────
+\cleardoublepage
+\tableofcontents
+
+% ── 図目次・表目次 ───────────────────────────────────────────
+\cleardoublepage
+\listoffigures
+\listoftables
+
+%=============================================================
+% 本文
+%=============================================================
+\mainmatter   % jlreq: ページ番号をアラビア数字に切り替え
+
+\input{chapters/ch01_intro}
+\input{chapters/ch02_literature}
+\input{chapters/ch03_data_method}
+\input{chapters/ch04_results}
+\input{chapters/ch05_discussion}
+\input{chapters/ch06_conclusion}
+
+%=============================================================
+% 参考文献
+%=============================================================
+\cleardoublepage
+\printbibliography[heading=bibintoc, title=参考文献]
+
+%=============================================================
+% 付録（必要に応じて）
+%=============================================================
+% \appendix
+% \input{chapters/appendix}
+
+\end{document}

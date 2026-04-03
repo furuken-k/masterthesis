@@ -1,0 +1,231 @@
+%=============================================================
+%  第3章 データと分析手法
+%=============================================================
+\chapter{データと分析手法}
+\label{chap:data-method}
+
+\section{データ}
+\label{sec:data}
+
+\subsection{サンプルと期間}
+
+本研究では，日本上場企業 \num{3558} 社の財務データを用いる。
+サンプル期間は 2010 年度から 2024 年度であり，
+延べ \num{49642} 社・年の観測値を含む（表\ref{tab:data-summary}参照）。
+
+データは〇〇（データベース名）から取得した。
+サンプルから除外した観測値として，(1) 財務諸表が入手できないもの，
+(2) 分析に用いる変数のすべてが欠損しているものが挙げられる。
+
+\begin{table}[htbp]
+  \centering
+  \caption{サンプルの基本統計量}
+  \label{tab:data-summary}
+  % TODO: Python でテーブルを生成して \input{tables/tab_summary_stats.tex} に置き換える
+  \begin{tabular}{lrrrr}
+    \toprule
+    変数 & 観測数 & 平均 & 標準偏差 & 中央値 \\
+    \midrule
+    総資産（百万円） & \num{49642} & \TODO{} & \TODO{} & \TODO{} \\
+    売上高（百万円） & \num{49642} & \TODO{} & \TODO{} & \TODO{} \\
+    自己資本比率（\%） & \num{49642} & \TODO{} & \TODO{} & \TODO{} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{変数の定義}
+
+分析に用いる財務変数は表\ref{tab:variables}に示す 11 変数である。
+
+\begin{table}[htbp]
+  \centering
+  \caption{分析変数の定義}
+  \label{tab:variables}
+  \begin{tabularx}{\linewidth}{llX}
+    \toprule
+    変数名 & 区分 & 定義・出典 \\
+    \midrule
+    総資産     & 規模  & 貸借対照表の資産合計（百万円） \\
+    売上高     & 規模  & 損益計算書の売上高（百万円） \\
+    短期借入金 & 負債  & 流動負債のうち短期借入金（百万円），欠損値は 0 を代入 \\
+    長期借入金 & 負債  & 固定負債のうち長期借入金（百万円），欠損値は 0 を代入 \\
+    利益剰余金 & 内部留保 & 純資産のうち利益剰余金（百万円） \\
+    現金同等物 & 流動性 & キャッシュ・フロー計算書の期末残高（百万円） \\
+    営業利益   & 収益性 & 損益計算書の営業利益（百万円） \\
+    営業 CF    & CF    & キャッシュ・フロー計算書の営業活動によるキャッシュ・フロー \\
+    投資 CF    & CF    & 投資活動によるキャッシュ・フロー \\
+    財務 CF    & CF    & 財務活動によるキャッシュ・フロー \\
+    自己資本比率 & 安全性 & 純資産合計 ÷ 資産合計 $\times$ 100（\%） \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{データの前処理}
+\label{sec:preprocessing}
+
+\subsection{対数変換}
+
+財務変数は企業規模によって大きく分布が歪んでいる。
+通常の対数変換 $\log(1+x)$ は $x < -1$ の場合に欠損値を生成し，
+赤字企業や負の利益剰余金を持つ企業をサンプルから除外する
+選択バイアスをもたらす。
+
+本研究では，この問題に対処するため，以下の符号付き対数変換を採用する。
+
+\begin{equation}
+  \mathrm{signed\_log1p}(x) = \mathrm{sign}(x) \cdot \log(1 + |x|)
+  \label{eq:signed-log1p}
+\end{equation}
+
+この変換は，正の値に対しては通常の $\log(1+x)$ と同一であり，
+負の値に対しては符号を保持しつつ大きさを圧縮する。
+これにより，損失企業や財務的に脆弱な企業をサンプルに含めることができ，
+選択バイアスを回避できる。
+
+\subsection{欠損値の処理}
+
+短期借入金と長期借入金については，有価証券報告書を持つ企業が
+借入を行っていない場合に欠損として計上されるケースが多い。
+本研究では，このような構造的欠損に対して 0 を代入する。
+
+\section{クラスタリング手法}
+\label{sec:clustering}
+
+\subsection{年度内標準化}
+
+各財務変数は，年度ごとに平均 0・標準偏差 1 に標準化する。
+
+\begin{equation}
+  \tilde{x}_{i,t} = \frac{x_{i,t} - \bar{x}_t}{s_t}
+  \label{eq:zscore}
+\end{equation}
+
+ここで $\bar{x}_t$ と $s_t$ は年度 $t$ における当該変数の標本平均と標本標準偏差である。
+この年度内標準化により，各変数が年度をまたいで比較可能になる。
+
+\subsection{主成分分析（PCA）}
+
+年度内標準化後の財務変数行列に対して主成分分析（PCA）を適用し，
+多重共線性を解消した上で次元削減を行う。
+
+本研究では，予測モデルの訓練期間と一致させるために，
+訓練期間（2010〜2021年度）のデータのみを用いて PCA を推定し，
+全期間にわたるデータを同一の主成分基底に射影する。
+
+表\ref{tab:pca-variance}に各主成分の寄与率を示す。
+第1〜第3主成分の累積寄与率は \TODO{64.4\%} であり，
+本研究ではこれら3つの主成分スコアをクラスタリングの入力変数として用いる。
+
+\begin{table}[htbp]
+  \centering
+  \caption{主成分の寄与率}
+  \label{tab:pca-variance}
+  % TODO: \input{tables/tab_pca_variance.tex} に置き換える
+  \begin{tabular}{crr}
+    \toprule
+    主成分 & 寄与率（\%） & 累積寄与率（\%） \\
+    \midrule
+    PC1 & 35.1 & 35.1 \\
+    PC2 & 19.2 & 54.3 \\
+    PC3 & 10.1 & 64.4 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{K-Means クラスタリングとハンガリアン法によるラベル整合}
+
+本研究では，年度ごとに独立した K-Means クラスタリングを実施した上で，
+ハンガリアン法（Hungarian algorithm）によって年度間のクラスターラベルを整合させる。
+
+年度 $t$ の K-Means クラスタリングにより，各企業を $K=5$ 個のクラスターに分類する。
+クラスター数 $K$ の選択には Silhouette 係数とエルボー法を用いた。
+
+年度をまたいだラベルの整合は，前年度の重心と当年度の重心の間のユークリッド距離行列に
+対して線形割当問題（ハンガリアン法）を解くことで実現する。
+
+\begin{equation}
+  \hat{\sigma}_t = \arg\min_{\sigma \in S_K}
+  \sum_{k=1}^{K} \left\| \mathbf{c}_{t-1, k} - \mathbf{c}_{t, \sigma(k)} \right\|^2
+  \label{eq:hungarian}
+\end{equation}
+
+ここで $\mathbf{c}_{t,k}$ は年度 $t$ のクラスター $k$ の重心ベクトルであり，
+$S_K$ は $K$ 個の要素の置換全体の集合である。
+
+\section{遷移分析}
+\label{sec:transition}
+
+\subsection{遷移行列の推定}
+
+年度 $t$ でクラスター $j$ に属する企業が，年度 $t+1$ でクラスター $k$ に
+遷移する確率を遷移行列の要素 $p_{jk}$ として推定する。
+
+\subsection{二値プロビット（遷移の有無）}
+
+翌年度に異なるクラスターへ遷移するかどうかを被説明変数とする
+二値プロビットモデルを推定する。
+
+\begin{equation}
+  \Pr(y_{i,t} = 1) = \Phi(\mathbf{x}_{i,t}' \boldsymbol{\beta})
+  \label{eq:probit}
+\end{equation}
+
+説明変数 $\mathbf{x}_{i,t}$ には，(1) 主成分スコア（PC1〜PC3），
+(2) 対数変換済み財務変数，(3) 現在クラスターダミー，
+(4) 年度固定効果が含まれる。
+
+\subsection{多項ロジット（遷移先の決定）}
+
+遷移が発生した企業を対象に，遷移先クラスターを被説明変数とする
+多項ロジットモデルを推定する。
+
+\section{予測モデル}
+\label{sec:prediction}
+
+\subsection{XGBoost}
+
+本研究では，勾配ブースティング木（Gradient Boosted Trees）の実装である
+XGBoost \citep{ChenGuestrin2016} を予測モデルとして用いる。
+
+\paragraph{Step 1: 遷移の二値分類}
+
+遷移するか否かを目的変数とする二値分類モデルを推定する。
+非遷移（約 80\%）と遷移（約 20\%）の不均衡に対処するため，
+\texttt{scale\_pos\_weight} パラメータを非遷移数／遷移数の比率（3.99）に設定する。
+
+時系列バイアスを防ぐため，訓練期間を 2010〜2021 年度，
+テスト期間を 2022〜2024 年度とする時系列分割を採用する。
+
+\paragraph{Step 2: 遷移先の多クラス分類}
+
+遷移した企業のみを対象に，遷移先クラスター（0〜4）を目的変数とする
+多クラス分類モデル（\texttt{objective: multi:softprob}）を推定する。
+
+\subsection{SHAP による解釈可能性分析}
+
+各特徴量の予測への貢献度を Shapley Additive Explanations（SHAP；
+\tcite{LundbergLee2017}）によって定量化する。
+本研究では XGBoost 内蔵の TreeSHAP を使用し，
+各特徴量のMean $|\mathrm{SHAP}|$ を重要度指標として用いる。
+
+\section{ロバストネスチェック}
+\label{sec:robustness}
+
+分析の設計上の懸念点（PCA における情報漏洩の可能性）に対して，
+以下の3つのロバストネスチェックを実施する。
+
+\begin{description}
+  \item[方法①（Train-only クラスタリング）]
+    PCA の推定を訓練期間（2010〜2021 年度）のデータに限定し，
+    テスト期間はその主成分基底で変換する。これにより，
+    テスト期間の分散構造が PCA 成分の計算に混入することを防ぐ。
+
+  \item[方法②（ロバストネス比較）]
+    全期間 PCA（Pattern A）と Train-only PCA（Pattern B）の
+    両クラスタリングで予測モデルを推定し，性能を比較する。
+    AUC の差分が十分に小さければ，PCA のリークの影響が限定的であることを示す。
+
+  \item[方法③（クラスター変数除外）]
+    現在クラスターを特徴量から除外したモデルを推定することで，
+    財務変数単独の説明力を検証する。
+\end{description}

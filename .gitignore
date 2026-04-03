@@ -15,3 +15,24 @@ venv/
 # Editor
 .vscode/
 .idea/
+
+# References PDFs (copyright / large files)
+References/
+
+# Claude Code internal memory
+memory/
+
+# LaTeX build artifacts
+thesis/*.aux
+thesis/*.bbl
+thesis/*.bcf
+thesis/*.blg
+thesis/*.log
+thesis/*.out
+thesis/*.run.xml
+thesis/*.toc
+thesis/*.lof
+thesis/*.lot
+thesis/*.fls
+thesis/*.fdb_latexmk
+thesis/main.pdf

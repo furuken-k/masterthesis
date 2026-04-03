@@ -1,0 +1,239 @@
+%=============================================================
+%  第4章 結果
+%=============================================================
+\chapter{結果}
+\label{chap:results}
+
+\section{クラスターの特性}
+\label{sec:results-clusters}
+
+K-Means クラスタリングにより，日本上場企業は表\ref{tab:cluster-profile}に示す
+5つのクラスターに分類された。
+
+\begin{table}[htbp]
+  \centering
+  \caption{クラスター財務プロファイル（中央値，2010〜2024年度）}
+  \label{tab:cluster-profile}
+  % TODO: \input{tables/tab_cluster_profile.tex} に置き換える
+  \small
+  \begin{tabular}{llrrrrr}
+    \toprule
+    & & \multicolumn{5}{c}{クラスター} \\
+    \cmidrule(lr){3-7}
+    変数 & 単位 & C0 & C1 & C2 & C3 & C4 \\
+    \midrule
+    総資産     & 億円 & 208  & 51   & 616  & 3,867 & 55 \\
+    自己資本比率 & \%  & 42.2 & 43.9 & 68.7 & 42.9  & 67.2 \\
+    構成比率   & \%   & 32.5 & 9.9  & 18.0 & 21.3  & 18.3 \\
+    \midrule
+    解釈 & & 中小規模 & 小規模 & 中規模 & 大企業型 & 小規模 \\
+         & & 標準型  & 脆弱型 & 優良型 &         & 健全型 \\
+    \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+    \small
+    \item 注: 構成比率は全観測値に占める各クラスターの割合。
+  \end{tablenotes}
+\end{table}
+
+各クラスターの特徴を以下に述べる。
+
+\paragraph{\Cluster{0}（中小規模・標準型）}
+総資産の中央値は約 208 億円であり，自己資本比率 42.2\%，営業利益は正の値を示す。
+全観測値の 32.5\% を占める最大クラスターであり，日本上場企業の標準的な財務構造を体現する。
+
+\paragraph{\Cluster{1}（小規模・財務脆弱型）}
+\TODO{C1の特徴を記述する（営業利益がマイナス，規模小）}
+
+\paragraph{\Cluster{2}（中規模・財務優良型）}
+自己資本比率が 68.7\% と高く，財務の健全性が際立つ。
+
+\paragraph{\Cluster{3}（大企業型）}
+総資産の中央値は約 3,867 億円と突出して大きく，大企業グループを構成する。
+
+\paragraph{\Cluster{4}（小規模・財務健全型）}
+規模は小さいが，自己資本比率 67.2\% と高い財務健全性を持つ。
+
+\section{クラスター遷移行列}
+\label{sec:results-transition}
+
+表\ref{tab:transition-matrix}に年度間のクラスター遷移行列を示す。
+
+\begin{table}[htbp]
+  \centering
+  \caption{クラスター遷移行列（行: 遷移元，列: 遷移先, \%）}
+  \label{tab:transition-matrix}
+  % TODO: \input{tables/tab_transition_matrix.tex} に置き換える
+  \begin{tabular}{lrrrrr}
+    \toprule
+    & \multicolumn{5}{c}{遷移先クラスター} \\
+    \cmidrule(lr){2-6}
+    遷移元 & C0 & C1 & C2 & C3 & C4 \\
+    \midrule
+    C0 & \TODO{} & \TODO{} & \TODO{} & \TODO{} & \TODO{} \\
+    C1 & \TODO{} & \TODO{} & \TODO{} & \TODO{} & \TODO{} \\
+    C2 & \TODO{} & \TODO{} & \TODO{} & \TODO{} & \TODO{} \\
+    C3 & \TODO{} & \TODO{} & \TODO{} & \TODO{} & \TODO{} \\
+    C4 & \TODO{} & \TODO{} & \TODO{} & \TODO{} & \TODO{} \\
+    \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+    \small
+    \item 注: 各行の合計は 100\%。太字は対角成分（自己遷移）。
+    \item 全サンプルの自己遷移率は 80.1\%。
+  \end{tablenotes}
+\end{table}
+
+対角成分（自己遷移率）は全クラスター平均で 80.1\% であり，
+年度をまたいでも財務クラスターの帰属が高い安定性を持つことが示される。
+
+\section{遷移要因の分析}
+\label{sec:results-probit}
+
+\subsection{二値プロビット}
+
+\begin{table}[htbp]
+  \centering
+  \caption{二値プロビット推定結果}
+  \label{tab:probit}
+  % TODO: \input{tables/tab_probit_results.tex} に置き換える
+  \begin{tabular}{lrr}
+    \toprule
+    変数 & モデル1（年度 FE なし） & モデル2（年度 FE あり） \\
+    \midrule
+    PC1         & \TODO{} & \TODO{} \\
+    PC2         & \TODO{} & \TODO{} \\
+    PC3         & \TODO{} & \TODO{} \\
+    \midrule
+    Pseudo $R^2$ & \TODO{} & \TODO{} \\
+    N           & \TODO{} & \TODO{} \\
+    \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+    \small
+    \item 注: $^{*}p<0.1$, $^{**}p<0.05$, $^{***}p<0.01$
+  \end{tablenotes}
+\end{table}
+
+\section{予測モデルの結果}
+\label{sec:results-prediction}
+
+\subsection{遷移の二値分類（Step 1）}
+
+表\ref{tab:binary-performance}に，遷移の有無を予測するモデルの性能を示す。
+
+\begin{table}[htbp]
+  \centering
+  \caption{Binary 分類モデルの性能（Test: 2022〜2024 年度）}
+  \label{tab:binary-performance}
+  \begin{tabular}{lrrl}
+    \toprule
+    モデル & Accuracy & AUC-ROC & 備考 \\
+    \midrule
+    Logistic Regression & 0.62 & 0.630 & ベースライン \\
+    XGBoost             & 0.69 & \textbf{0.757} & \texttt{scale\_pos\_weight=3.99} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+XGBoost は AUC = 0.757 を達成し，ロジスティック回帰（AUC = 0.630）を大幅に上回った。
+
+\subsection{SHAP 分析: 遷移要因}
+
+図\ref{fig:shap-binary-importance}に，遷移の二値分類に対する特徴量重要度を示す。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.70\linewidth]{shap_binary_importance.png}
+  \caption{特徴量重要度（Mean $|\mathrm{SHAP}|$）：遷移有無（Binary XGBoost）}
+  \label{fig:shap-binary-importance}
+\end{figure}
+
+最も重要な特徴量は営業利益（Mean $|\mathrm{SHAP}|$ = 0.311）であり，
+次いで長期借入金（0.297），現在クラスター（0.269）が続く。
+
+\subsection{遷移先の多クラス分類（Step 2）}
+
+遷移した企業のみを対象とする多クラス分類の結果を表\ref{tab:mc-performance}に示す。
+
+\begin{table}[htbp]
+  \centering
+  \caption{Multi-class 分類モデルの性能（Test: 2022〜2024 年度，遷移企業のみ）}
+  \label{tab:mc-performance}
+  \begin{tabular}{lrrl}
+    \toprule
+    モデル & Accuracy & AUC-ROC（macro） & 備考 \\
+    \midrule
+    XGBoost & 0.73 & \textbf{0.947} & 遷移企業のみ（$n=2,081$）\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+多クラス分類において AUC（macro） = 0.947 という高い予測精度が達成された。
+
+\subsection{SHAP 分析: 遷移先決定要因}
+
+図\ref{fig:shap-mc-heatmap}に，各遷移先クラスターへの SHAP 値のヒートマップを示す。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{shap_multiclass_heatmap.png}
+  \caption{Mean $|\mathrm{SHAP}|$ ヒートマップ：遷移先クラスター × 特徴量}
+  \label{fig:shap-mc-heatmap}
+\end{figure}
+
+\section{ロバストネスチェックの結果}
+\label{sec:results-robustness}
+
+\subsection{PCA リークの影響（方法②）}
+
+表\ref{tab:robustness-pca}に，全期間 PCA（Pattern A）と
+Train-only PCA（Pattern B）での予測性能を比較する。
+
+\begin{table}[htbp]
+  \centering
+  \caption{ロバストネスチェック: PCA の推定期間による比較}
+  \label{tab:robustness-pca}
+  \begin{tabular}{llrr}
+    \toprule
+    タスク & PCA 推定期間 & AUC-ROC & 差分 \\
+    \midrule
+    Binary      & 全期間（Pattern A） & 0.757 & — \\
+                & Train-only（Pattern B）& 0.752 & $-0.005$ \\
+    \midrule
+    Multi-class & 全期間（Pattern A） & 0.947 & — \\
+                & Train-only（Pattern B）& 0.929 & $-0.018$ \\
+    \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+    \small
+    \item 注: Pattern A と Pattern B のクラスターラベルは，最適リラベリング後の一致率が 98.4\% であり，実質的に同一のクラスター構造を捉えている。
+  \end{tablenotes}
+\end{table}
+
+AUC の差分は Binary で 0.005，多クラスで 0.018 と極めて小さく，
+PCA 推定期間の違いが予測精度に与える影響は限定的であることが示された。
+
+\subsection{現在クラスターを除外したモデル（方法③）}
+
+\begin{table}[htbp]
+  \centering
+  \caption{ロバストネスチェック: 現在クラスター変数の有無による比較}
+  \label{tab:robustness-no-cluster}
+  \begin{tabular}{llrr}
+    \toprule
+    タスク & 特徴量 & AUC-ROC & 差分 \\
+    \midrule
+    Binary      & 財務変数 + クラスター（基準）& 0.757 & — \\
+                & 財務変数のみ（11 変数）      & 0.745 & $-0.012$ \\
+    \midrule
+    Multi-class & 財務変数 + クラスター（基準）& 0.947 & — \\
+                & 財務変数のみ（11 変数）      & 0.879 & $-0.068$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+現在クラスターを除いた場合，Binary の AUC は 0.745 となり，財務変数のみでも
+遷移の有無を相当程度予測できることが示された。
+多クラス分類における差分（$-0.068$）は，現在クラスター変数が遷移先の決定に
+重要な役割を果たすこと，すなわちパス依存性の存在を示唆する。

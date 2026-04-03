@@ -1,0 +1,87 @@
+%=============================================================
+%  第2章 先行研究
+%=============================================================
+\chapter{先行研究}
+\label{chap:literature}
+
+\section{企業ライフサイクル論}
+\label{sec:lit-lifecycle}
+
+\subsection{ライフサイクルの概念と測定}
+
+\tcite{Dickinson2011} は，営業・投資・財務キャッシュフローの符号パターンに基づいて
+企業を5段階のライフサイクル（導入期・成長期・成熟期・動揺期・衰退期）に分類する
+手法を提案した。同研究は，この分類が企業の収益性・成長性・配当政策と整合することを示し，
+企業ライフサイクル代理変数として広く採用されるに至った。
+
+\tcite{Habib2019survey} はライフサイクル研究を包括的にサーベイし，
+会計・財務・コーポレートガバナンスの各分野でライフサイクル概念がどのように
+応用されてきたかを整理した。
+
+\TODO{以下の論文を追加して議論を展開する:}
+% - Mueller (1972) 産業組織論的ライフサイクル
+% - Anthony & Ramesh (1992) 会計情報とライフサイクル
+% - DeAngelo et al. (2006) 配当とライフサイクル
+
+\subsection{財務政策とライフサイクル}
+
+\TODO{以下の論文を参照して記述する:}
+% - 配当政策: \citep{DeAngeloEtAl2006}, \citep{FamaFrench2001}
+% - 資本構成: \citep{HankhinsEtAl????}
+% - リスクテイク: \citep{FirmLifeCycleRisk????}
+
+\section{財務クラスタリングと機械学習}
+\label{sec:lit-clustering}
+
+\subsection{財務指標によるクラスタリング}
+
+\tcite{GonzalezRuiz2021} は K-Means クラスタリングとマルコフ連鎖を組み合わせ，
+企業の信用品質クラスター間の遷移確率を推定した。
+本研究の方法論と最も類似しており，クラスタリング＋遷移分析の先駆的研究として位置づけられる。
+ただし同研究は35社と小規模な分析に留まっており，日本の上場企業全体を対象とした
+大規模分析は行われていない。
+
+\tcite{Li2022} は PCA と K-Means の組み合わせにより企業財務リスクの識別を行い，
+高リスク企業と低リスク企業のクラスターを識別することに成功した。
+
+\TODO{Financial clusters の論文（References フォルダ）も参照して追記する}
+
+\subsection{機械学習を用いた財務予測}
+
+倒産予測の分野では，機械学習手法の優位性が実証されている。
+\tcite{Nguyen2023} は Random Forest, LightGBM, XGBoost, NGBoost を
+比較し，XGBoost が AUC 約 94\% を達成することを示した。
+同研究はさらに SHAP（Shapley Additive Explanations）を用いて
+各変数の貢献度を定量化した。
+
+\tcite{BenJabeur2023} は特徴量重要度に基づく変数選択（FS-XGBoost）を提案し，
+財務比率の選択がモデル精度に与える影響を分析した。
+
+\tcite{Zhang2023} は XGBoost に証拠理論を組み合わせた財務リスク早期警戒モデルを構築し，
+SHAP により各変数の方向性を定量化した。
+
+\section{本研究の位置づけ}
+\label{sec:lit-position}
+
+既存研究との対比を表\ref{tab:lit-comparison}に示す。
+
+\begin{table}[htbp]
+  \centering
+  \caption{先行研究との比較}
+  \label{tab:lit-comparison}
+  \small
+  \begin{tabularx}{\linewidth}{lXXcc}
+    \toprule
+    研究 & 手法 & データ & 遷移分析 & 要因解明 \\
+    \midrule
+    \tcite{Dickinson2011} & CF パターン & 米国上場 & なし & なし \\
+    \tcite{GonzalezRuiz2021} & K-Means + Markov & 35社 & あり & なし \\
+    \tcite{Li2022} & PCA + K-Means & 中国上場 & なし & なし \\
+    \tcite{Nguyen2023} & XGBoost + SHAP & フランス企業 & なし & あり \\
+    \textbf{本研究} & PCA + K-Means + XGBoost + SHAP & 日本上場 3,558社 & \textbf{あり} & \textbf{あり} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+本研究は，(1) 大規模な日本企業データ，(2) ハンガリアン法による年度間ラベル整合，
+(3) XGBoost + SHAP による遷移要因の解明，の3点において既存研究を拡張する。
