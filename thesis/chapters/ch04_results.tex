@@ -43,7 +43,9 @@ K-Means クラスタリングにより，日本上場企業は表\ref{tab:cluste
 全観測値の 32.5\% を占める最大クラスターであり，日本上場企業の標準的な財務構造を体現する。
 
 \paragraph{\Cluster{1}（小規模・財務脆弱型）}
-\TODO{C1の特徴を記述する（営業利益がマイナス，規模小）}
+総資産の中央値は約 51 億円と最小規模であり，自己資本比率は 43.9\% である。
+PC1・PC2 ともに全クラスター中で最低値を示し，特に営業利益が負である傾向が顕著である。
+全観測値の 9.9\% を占める。
 
 \paragraph{\Cluster{2}（中規模・財務優良型）}
 自己資本比率が 68.7\% と高く，財務の健全性が際立つ。
@@ -70,11 +72,11 @@ K-Means クラスタリングにより，日本上場企業は表\ref{tab:cluste
     \cmidrule(lr){2-6}
     遷移元 & C0 & C1 & C2 & C3 & C4 \\
     \midrule
-    C0 & \TODO{} & \TODO{} & \TODO{} & \TODO{} & \TODO{} \\
-    C1 & \TODO{} & \TODO{} & \TODO{} & \TODO{} & \TODO{} \\
-    C2 & \TODO{} & \TODO{} & \TODO{} & \TODO{} & \TODO{} \\
-    C3 & \TODO{} & \TODO{} & \TODO{} & \TODO{} & \TODO{} \\
-    C4 & \TODO{} & \TODO{} & \TODO{} & \TODO{} & \TODO{} \\
+    C0 & \textbf{79.9} & 5.2  & 6.0  & 4.1  & 4.8 \\
+    C1 & 22.0 & \textbf{61.3} & 1.9  & 0.9  & 13.9 \\
+    C2 & 9.0  & 1.1  & \textbf{80.6} & 4.1  & 5.2 \\
+    C3 & 4.9  & 0.6  & 4.1  & \textbf{90.4} & 0.0 \\
+    C4 & 9.4  & 7.2  & 5.7  & 0.0  & \textbf{77.7} \\
     \bottomrule
   \end{tabular}
   \begin{tablenotes}
@@ -101,12 +103,12 @@ K-Means クラスタリングにより，日本上場企業は表\ref{tab:cluste
     \toprule
     変数 & モデル1（年度 FE なし） & モデル2（年度 FE あり） \\
     \midrule
-    PC1         & \TODO{} & \TODO{} \\
-    PC2         & \TODO{} & \TODO{} \\
-    PC3         & \TODO{} & \TODO{} \\
+    PC1         & — & $-0.008$ \\
+    PC2         & — & $-0.105^{***}$ \\
+    PC3         & — & $0.022^{**}$ \\
     \midrule
-    Pseudo $R^2$ & \TODO{} & \TODO{} \\
-    N           & \TODO{} & \TODO{} \\
+    Pseudo $R^2$ & — & 0.043 \\
+    N           & — & \num{46084} \\
     \bottomrule
   \end{tabular}
   \begin{tablenotes}
@@ -185,55 +187,98 @@ XGBoost は AUC = 0.757 を達成し，ロジスティック回帰（AUC = 0.630
 \section{ロバストネスチェックの結果}
 \label{sec:results-robustness}
 
-\subsection{PCA リークの影響（方法②）}
+本節では，PCA の推定期間（全期間 vs 訓練期間のみ）と現在クラスター変数の有無を
+組み合わせた 4 パターンの比較分析，および統計的有意性の検定結果を報告する。
 
-表\ref{tab:robustness-pca}に，全期間 PCA（Pattern A）と
-Train-only PCA（Pattern B）での予測性能を比較する。
+\subsection{4 パターン比較}
+
+表\ref{tab:robustness-4pattern}に，PCA 推定期間とクラスター変数の有無を
+組み合わせた 4 パターンの予測性能を示す。
+図\ref{fig:robustness-4pattern}にその比較を可視化する。
 
 \begin{table}[htbp]
   \centering
-  \caption{ロバストネスチェック: PCA の推定期間による比較}
-  \label{tab:robustness-pca}
+  \caption{ロバストネスチェック: 4 パターンの予測性能比較（AUC-ROC）}
+  \label{tab:robustness-4pattern}
   \begin{tabular}{llrr}
     \toprule
-    タスク & PCA 推定期間 & AUC-ROC & 差分 \\
+    パターン & 設定 & Binary & Multi-class \\
     \midrule
-    Binary      & 全期間（Pattern A） & 0.757 & — \\
-                & Train-only（Pattern B）& 0.752 & $-0.005$ \\
-    \midrule
-    Multi-class & 全期間（Pattern A） & 0.947 & — \\
-                & Train-only（Pattern B）& 0.929 & $-0.018$ \\
+    A（基準）& 全期間 PCA + クラスター変数あり & \textbf{0.757} & \textbf{0.947} \\
+    B        & Train-only PCA + クラスター変数あり & 0.752 & 0.929 \\
+    C        & 全期間 PCA + クラスター変数なし & 0.745 & 0.879 \\
+    D        & Train-only PCA + クラスター変数なし & 0.745 & 0.879 \\
     \bottomrule
   \end{tabular}
   \begin{tablenotes}
     \small
-    \item 注: Pattern A と Pattern B のクラスターラベルは，最適リラベリング後の一致率が 98.4\% であり，実質的に同一のクラスター構造を捉えている。
+    \item 注: Pattern A と B のクラスターラベルは，ハンガリアン法による最適リラベリング後の一致率が 98.4\% であり，実質的に同一のクラスター構造を捉えている。
   \end{tablenotes}
 \end{table}
 
-AUC の差分は Binary で 0.005，多クラスで 0.018 と極めて小さく，
-PCA 推定期間の違いが予測精度に与える影響は限定的であることが示された。
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\linewidth]{robustness_4pattern_comparison.png}
+  \caption{4 パターンの AUC-ROC 比較（Binary・Multi-class）}
+  \label{fig:robustness-4pattern}
+\end{figure}
 
-\subsection{現在クラスターを除外したモデル（方法③）}
+4 パターンの結果から，以下の知見が得られた。
+第一に，PCA 推定期間の影響（A vs B）は Binary で 0.005，Multi-class で 0.018 と小さく，
+情報漏洩の影響は限定的である。
+第二に，現在クラスター変数を除外した場合（A vs C），Binary では 0.012 の低下にとどまり，
+財務変数のみでも遷移の有無を相当程度予測できる。
+一方，Multi-class では 0.068 の低下が見られ，現在クラスターが遷移先の決定に
+重要な役割を果たすこと，すなわちパス依存性の存在を示唆する。
+第三に，クラスター変数を除外した場合（C vs D），PCA 推定期間の差異は消失し，
+情報漏洩の懸念が現在クラスター変数に限定されることが確認された。
+
+\subsection{統計的有意性の検定}
+
+表\ref{tab:robustness-stat}に，各パターン間の AUC 差に対する
+DeLong 検定（Binary）および Bootstrap 95\% 信頼区間（2,000 回リサンプリング）の結果を示す。
+図\ref{fig:robustness-stat}に検定結果を可視化する。
 
 \begin{table}[htbp]
   \centering
-  \caption{ロバストネスチェック: 現在クラスター変数の有無による比較}
-  \label{tab:robustness-no-cluster}
-  \begin{tabular}{llrr}
+  \caption{パターン間の AUC 差に対する統計的検定結果}
+  \label{tab:robustness-stat}
+  \small
+  \begin{tabular}{llrrll}
     \toprule
-    タスク & 特徴量 & AUC-ROC & 差分 \\
+    比較 & 検証内容 & $\Delta$AUC & $p$値 & Bootstrap 95\% CI & 判定 \\
     \midrule
-    Binary      & 財務変数 + クラスター（基準）& 0.757 & — \\
-                & 財務変数のみ（11 変数）      & 0.745 & $-0.012$ \\
+    \multicolumn{6}{l}{\textit{Binary}} \\
+    A vs B & PCA 推定期間 & $+0.005$ & 0.121 & $[+0.002, +0.008]$ & n.s. \\
+    A vs C & クラスター変数（全期間）& $+0.012$ & 0.040 & $[+0.007, +0.017]$ & $*$ \\
+    B vs D & クラスター変数（Train-only）& $+0.007$ & 0.198 & $[+0.003, +0.012]$ & n.s. \\
+    C vs D & PCA 推定期間（クラスターなし）& $+0.000$ & 1.000 & $[+0.000, +0.000]$ & n.s. \\
     \midrule
-    Multi-class & 財務変数 + クラスター（基準）& 0.947 & — \\
-                & 財務変数のみ（11 変数）      & 0.879 & $-0.068$ \\
+    \multicolumn{6}{l}{\textit{Multi-class（Bootstrap のみ）}} \\
+    A vs B & PCA 推定期間 & $+0.018$ & — & $[+0.015, +0.022]$ & $*$ \\
+    A vs C & クラスター変数（全期間）& $+0.069$ & — & $[+0.063, +0.074]$ & $*$ \\
+    B vs D & クラスター変数（Train-only）& $+0.050$ & — & $[+0.045, +0.056]$ & $*$ \\
+    C vs D & PCA 推定期間（クラスターなし）& $+0.000$ & — & $[+0.000, +0.000]$ & n.s. \\
     \bottomrule
   \end{tabular}
+  \begin{tablenotes}
+    \small
+    \item 注: $*$: 95\% 信頼区間が 0 を含まない。n.s.: 非有意。
+    DeLong 検定は Binary のみ適用。Multi-class は Bootstrap CI で判定。
+  \end{tablenotes}
 \end{table}
 
-現在クラスターを除いた場合，Binary の AUC は 0.745 となり，財務変数のみでも
-遷移の有無を相当程度予測できることが示された。
-多クラス分類における差分（$-0.068$）は，現在クラスター変数が遷移先の決定に
-重要な役割を果たすこと，すなわちパス依存性の存在を示唆する。
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\linewidth]{robustness_stat_test.png}
+  \caption{パターン間 AUC 差の統計的検定結果（DeLong $p$値・Bootstrap 95\% CI）}
+  \label{fig:robustness-stat}
+\end{figure}
+
+DeLong 検定の結果，Binary における PCA 推定期間の影響（A vs B）は統計的に非有意（$p = 0.121$）であり，
+情報漏洩が予測精度に実質的な影響を与えていないことが確認された。
+クラスター変数の寄与（A vs C）は $p = 0.040$ で有意であるが，
+Train-only PCA における同比較（B vs D）では非有意（$p = 0.198$）となり，
+クラスター変数の寄与は PCA 推定期間に依存する可能性が示唆された。
+Multi-class においては，Bootstrap CI に基づき PCA 推定期間の影響は有意であるものの，
+絶対差は 0.018 にとどまり，予測モデルの頑健性が確認された。
